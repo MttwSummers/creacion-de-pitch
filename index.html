@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Constructor de pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f3fa;--surface:#fff;--ink:#1a1f4d;--mute:#5c6188;--line:#d9dcee;--acc:#4b3fd1;--acc-ink:#fff;--warn:#b26a00;--warn-bg:#fff4dc;--ok:#1d7a4f;
+--head:"Bricolage Grotesque",system-ui,sans-serif;--body:"Newsreader",Georgia,serif;--ui:system-ui,-apple-system,"Segoe UI",sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10122b;--surface:#1a1d40;--ink:#e9eaff;--mute:#9a9ec8;--line:#2d3162;--acc:#8d83ff;--acc-ink:#10122b;--warn:#ffc561;--warn-bg:#3a2d12;--ok:#5fd29b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10122b;--surface:#1a1d40;--ink:#e9eaff;--mute:#9a9ec8;--line:#2d3162;--acc:#8d83ff;--acc-ink:#10122b;--warn:#ffc561;--warn-bg:#3a2d12;--ok:#5fd29b;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 56px}
+h1{font:700 clamp(1.5rem,4vw,2.1rem)/1.15 var(--head);margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:62ch}
+.layout{display:grid;gap:18px}
+@media(min-width:860px){.layout{grid-template-columns:250px 1fr;align-items:start}.rail{position:sticky;top:12px}}
+.rail{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+@media(min-width:860px){.rail{flex-direction:column;overflow:visible}}
+.tab{flex:0 0 auto;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;padding:9px 12px;color:var(--ink);font:500 .92rem var(--ui);cursor:pointer;white-space:nowrap}
+.tab:hover{background:var(--surface)}
+.tab[aria-current="true"]{background:var(--surface);border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.7rem;font-weight:700;color:var(--mute)}
+.tab.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.tab.part .dot{border-color:var(--acc);color:var(--acc)}
+.tab small{color:var(--mute);margin-left:auto;padding-left:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h2{font:700 1.45rem/1.2 var(--head);margin:0 0 4px}
+.q{color:var(--mute);margin:0 0 4px}
+.time{display:inline-block;font-size:.82rem;color:var(--acc);font-weight:600;margin-bottom:14px}
+.formula{font-family:var(--body);font-style:italic;color:var(--mute);border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:0 0 18px;font-size:1.02rem}
+.f{margin-bottom:14px}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+.h{font-weight:400;color:var(--mute);font-size:.82rem;margin:0 0 5px}
+textarea,input[type=text],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+textarea{resize:vertical;min-height:64px}
+textarea:focus,input:focus,select:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:grid;gap:14px}
+@media(min-width:620px){.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:repeat(3,1fr)}}
+.sec{font:700 1rem var(--head);margin:22px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.warn{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:.88rem;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.86rem;cursor:pointer;background:var(--bg)}
+.chip:has(input:checked){border-color:var(--acc);background:var(--acc);color:var(--acc-ink)}
+.chip input{accent-color:var(--acc);margin:0}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+button.b{font:600 .92rem var(--ui);border-radius:9px;padding:10px 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.b.p{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+button.b:disabled{opacity:.4;cursor:default}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.tools .grow{flex:1}
+.meter{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0 4px}
+.meter i{display:block;height:100%;background:var(--ok)}
+.meter.over i{background:var(--warn)}
+.ps{border-top:1px solid var(--line);padding:16px 0}
+.ps:first-of-type{border-top:0}
+.ps header{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ps h3{font:700 1.05rem var(--head);margin:0}
+.ps .t{font-size:.8rem;color:var(--mute)}
+.ps .t.over{color:var(--warn);font-weight:600}
+.ps textarea{font-family:var(--body);font-size:1.12rem;line-height:1.6;min-height:110px;margin-top:8px}
+.tr{font-family:var(--body);font-style:italic;color:var(--acc);margin:0 0 6px}
+.ps .rs{background:none;border:0;color:var(--mute);font-size:.78rem;text-decoration:underline;cursor:pointer;padding:2px 0}
+.msg{font-size:.85rem;color:var(--ok);min-height:1.2em}
+.tgl{display:flex;gap:6px;align-items:center;font-size:.88rem;font-weight:500;margin:0}
+.tgl input{accent-color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Constructor de pitch</h1>
+  <p class="sub">Completa cada paso con las frases guía. Al final se arma el guion de tu pitch, listo para ajustar y ensayar (máximo 15 minutos).</p>
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Pasos"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+<script>
+const CAPS=["Creatividad","Diseño","Narración","Producción de contenidos","Gamificación","Creación de experiencias","Colaboración interdisciplinaria","Prototipado","Uso creativo y responsable de la IA"];
+const INDS=["Reducción del tiempo del proceso","Disminución del número de pasos","Reducción de errores o reprocesos","Número de personas beneficiadas","Nivel de satisfacción","Tiempo de respuesta","Áreas conectadas","Uso de la solución","Contenidos o experiencias creadas"];
+const UNIV=["Un videojuego","Un reino fantástico","Una expedición","Una investigación detectivesca","Una misión espacial","Una historia de superhéroes","Una competencia o reality","Una aventura creada por el equipo"];
+
+/* Cada paso: key, título, pregunta, tiempo (seg), fórmula, campos, generador */
+const S=[
+{k:"base",t:"Insumos y universo",q:"¿Quiénes son y en qué universo contarán su historia?",sec:0,f:"Reúnan los seis insumos y elijan un universo que ayude a entender la propuesta, sin distraer de ella.",
+ fields:[
+ {id:"team",l:"Nombre del equipo",type:"line"},
+ {id:"universe",l:"Universo de la historia",type:"select",opts:UNIV},
+ {id:"universeNote",l:"Cómo se traduce ese universo en su pitch",h:"Ej.: el talento es el poder del reino; los equipos son la Orden de los Átomos.",type:"area"},
+ {id:"opening",l:"Frase de apertura (opcional)",h:"Una primera línea que atrape, en el tono de su universo.",type:"area"}]},
+{k:"misterio",t:"1. El misterio",q:"¿Qué está pasando y por qué debería importarnos?",sec:60,f:"En ___ está ocurriendo algo extraño: ___. Esto provoca ___. Si no hacemos nada, ___.",
+ fields:[
+ {id:"m_where",l:"¿Dónde ocurre?",h:"Institución, área o proceso.",type:"area"},
+ {id:"m_strange",l:"Lo extraño que ocurre (el dolor en una frase)",type:"area"},
+ {id:"m_effect",l:"Esto provoca…",type:"area"},
+ {id:"m_nothing",l:"Si no hacemos nada…",type:"area"},
+ {id:"m_why",l:"Por qué les llamó la atención (opcional)",type:"area"}],
+ gen:v=>j(v.opening,v.m_why&&`Esto nos llamó la atención porque ${e(v.m_why)}.`,`En ${p(v.m_where,"dónde ocurre")} está ocurriendo algo extraño: ${p(v.m_strange,"el dolor")}. Esto provoca ${p(v.m_effect,"efecto")}. Si no hacemos nada, ${p(v.m_nothing,"consecuencia")}.`)},
+{k:"personajes",t:"2. Los personajes",q:"¿Quién vive el dolor y cómo afecta su experiencia?",sec:120,f:"Nuestro protagonista es ___. Necesita ___, pero actualmente debe ___. Al escucharlo descubrimos que ___.",
+ fields:[
+ {id:"p_who",l:"Usuario principal (protagonista)",type:"area"},
+ {id:"p_needs",l:"Necesita…",type:"area"},
+ {id:"p_must",l:"Pero actualmente debe…",type:"area"},
+ {id:"p_found",l:"Al escucharlo descubrimos que…",type:"area"},
+ {id:"p_evidence",l:"Evidencia recogida",h:"Una frase de un usuario, una historia breve, un dato del proceso o una escena.",type:"area"}],
+ gen:v=>j(`Nuestro protagonista es ${p(v.p_who,"usuario")}. Necesita ${p(v.p_needs,"necesidad")}, pero actualmente debe ${p(v.p_must,"obstáculo")}. Al escucharlo descubrimos que ${p(v.p_found,"hallazgo")}.`,v.p_evidence&&`Así lo vivimos en la investigación: ${v.p_evidence.trim()}`)},
+{k:"giro",t:"3. El giro inesperado",q:"¿Qué descubrimos que cambió nuestra forma de entender el problema?",sec:90,f:"Al principio creíamos que ___. Pero al investigar descubrimos que ___. Entonces decidimos ___.",
+ fields:[
+ {id:"g_believed",l:"Al principio creíamos que…",type:"area"},
+ {id:"g_found",l:"Pero al investigar descubrimos que…",type:"area"},
+ {id:"g_decided",l:"Entonces decidimos…",type:"area"}],
+ gen:v=>`Al principio creíamos que ${p(v.g_believed,"creencia inicial")}. Pero al investigar descubrimos que ${p(v.g_found,"descubrimiento")}. Entonces decidimos ${p(v.g_decided,"nueva oportunidad")}.`},
+{k:"lab",t:"4. El laboratorio creativo",q:"¿Cómo llegamos a nuestra solución?",sec:120,f:"Nuestro átomo combinó conocimientos de ___. Exploramos alternativas como ___. Finalmente elegimos ___ porque ___.",
+ fields:[
+ {id:"l_know",l:"Conocimientos que combinó el equipo",type:"area"},
+ {id:"l_alts",l:"Alternativas exploradas",type:"area"},
+ {id:"l_chosen",l:"Solución elegida",type:"area"},
+ {id:"l_why",l:"Por qué responde mejor al hallazgo",type:"area"}],
+ gen:v=>`Nuestro átomo combinó conocimientos de ${p(v.l_know,"conocimientos")}. Exploramos alternativas como ${p(v.l_alts,"alternativas")}. Finalmente elegimos ${p(v.l_chosen,"solución")} porque ${p(v.l_why,"razón")}.`},
+{k:"solucion",t:"5. La solución",q:"¿Qué construimos y cómo funciona?",sec:180,f:"Nuestra solución se llama ___. Está diseñada para ___. Permite ___. La IA se utiliza para ___. Funciona ___ y falta ___.",
+ fields:[
+ {id:"s_name",l:"Nombre de la solución",type:"line"},
+ {id:"s_for",l:"Está diseñada para…",type:"area"},
+ {id:"s_allows",l:"Permite…",type:"area"},
+ {id:"s_ai",l:"La inteligencia artificial se utiliza para…",type:"area"},
+ {id:"s_works",l:"Actualmente funciona…",type:"area"},
+ {id:"s_missing",l:"Falta desarrollar…",type:"area"},
+ {h2:"Demostración en tres movimientos"},
+ {id:"s_in",l:"Entrada: ¿qué hace o solicita el usuario?",type:"area"},
+ {id:"s_proc",l:"Proceso: ¿qué hace la solución?",type:"area"},
+ {id:"s_out",l:"Resultado: ¿qué recibe o logra el usuario?",type:"area"}],
+ gen:v=>j(`Nuestra solución se llama ${p(v.s_name,"nombre")}. Está diseñada para ${p(v.s_for,"para quién")}. Permite ${p(v.s_allows,"función principal")}. La inteligencia artificial se utiliza para ${p(v.s_ai,"uso de la IA")}. Actualmente funciona ${p(v.s_works,"lo que funciona")} y falta desarrollar ${p(v.s_missing,"lo que falta")}.`,`Veámoslo en acción. Entrada: ${p(v.s_in,"qué hace el usuario")}. Proceso: ${p(v.s_proc,"qué hace la solución")}. Resultado: ${p(v.s_out,"qué logra el usuario")}.`)},
+{k:"impacto",t:"6. El impacto",q:"¿Qué cambiaría si la solución se implementara?",sec:120,f:"Antes: el usuario debe ___ y esto genera ___. Después: podrá ___ y esto permitirá ___.",
+ fields:[
+ {warn:"Si todavía no tienen resultados, no inventen porcentajes: preséntenlos como metas que deberán validarse."},
+ {id:"i_b1",l:"Antes: el usuario debe…",type:"area"},
+ {id:"i_b2",l:"…y esto genera",type:"area"},
+ {id:"i_a1",l:"Después: con la solución podrá…",type:"area"},
+ {id:"i_a2",l:"…y esto permitirá",type:"area"},
+ {id:"i_inds",l:"Indicadores (elijan de 2 a 4)",type:"chips",opts:INDS,max:4},
+ {id:"i_goals",l:"Meta de cada indicador (a validar)",h:"Ej.: bajar de 5 pasos a 2. Sin cifras inventadas.",type:"area"},
+ {h2:"Conexión con la industria creativa"},
+ {id:"i_trans",l:"Nuestra solución no solo transformaría…",type:"area"},
+ {id:"i_caps",l:"Capacidades que activa la propuesta",type:"chips",opts:CAPS}],
+ gen:v=>j(`Antes, el usuario debe ${p(v.i_b1,"situación actual")} y esto genera ${p(v.i_b2,"consecuencia")}. Después, con la solución podrá ${p(v.i_a1,"nueva situación")} y esto permitirá ${p(v.i_a2,"beneficio")}.`,`Para medir el impacto usaremos ${list(v.i_inds,"indicadores")}${v.i_goals?`, con estas metas por validar: ${e(v.i_goals)}`:""}.`,`Nuestra solución no solo transformaría ${p(v.i_trans,"qué transforma")}. También fortalecería capacidades de ${list(v.i_caps,"capacidades").toLowerCase()}, necesarias para potenciar la industria creativa.`)},
+{k:"mision",t:"7. La misión final",q:"¿Qué necesitamos para implementar la solución?",sec:90,f:"Para avanzar necesitamos ___. Proponemos probar la solución con ___ durante ___. Necesitamos el acompañamiento de ___ para ___.",
+ fields:[
+ {id:"f_validate",l:"Qué falta por validar",type:"area"},
+ {id:"f_with",l:"Piloto: lo probaremos con…",type:"area"},
+ {id:"f_time",l:"…durante",h:"Ej.: cuatro semanas.",type:"line"},
+ {id:"f_allies",l:"Aliados necesarios",type:"area"},
+ {id:"f_for",l:"…para",type:"area"},
+ {id:"f_ask",l:"Recurso o apoyo concreto que solicitan",type:"area"},
+ {id:"f_next",l:"Siguiente paso",type:"area"}],
+ gen:v=>`Para avanzar al siguiente nivel necesitamos validar ${p(v.f_validate,"qué falta validar")}. Proponemos probar la solución con ${p(v.f_with,"usuarios del piloto")} durante ${p(v.f_time,"duración")}. Necesitamos el acompañamiento de ${p(v.f_allies,"aliados")} para ${p(v.f_for,"para qué")}. Hoy les pedimos ${p(v.f_ask,"apoyo concreto")}, y nuestro siguiente paso será ${p(v.f_next,"siguiente paso")}.`},
+{k:"llamado",t:"8. El llamado",q:"¿A qué queremos que se sume el jurado?",sec:30,f:"Comenzamos con ___. Hoy tenemos ___. Para llegar al siguiente nivel necesitamos ___. ¿Se suman?",
+ fields:[
+ {id:"c_began",l:"Comenzamos con… (el dolor inicial)",type:"area"},
+ {id:"c_today",l:"Hoy tenemos…",type:"area"},
+ {id:"c_need",l:"Para llegar al siguiente nivel necesitamos…",type:"area"},
+ {id:"c_phrase",l:"Frase memorable de cierre",type:"area"}],
+ gen:v=>`Comenzamos con ${p(v.c_began,"dolor inicial")}. Hoy tenemos ${p(v.c_today,"lo logrado")}. Para llegar al siguiente nivel necesitamos ${p(v.c_need,"petición")}. ${v.c_phrase?e(v.c_phrase)+". ":""}¿Se suman?`}
+];
+const TRANS=["","Pero un misterio no existe sin personajes.","Y entonces ocurrió algo que no esperábamos.","Con ese descubrimiento, abrimos el laboratorio creativo.","Así fue como desbloqueamos la solución.","Veamos qué cambiaría si esto existiera de verdad.","Pero todavía nos falta la misión final.","Por eso estamos aquí."];
+
+/* utilidades de texto */
+function e(s){return (s||"").trim().replace(/[.\s]+$/,"")}
+function p(s,l){s=e(s);return s||`[${l}]`}
+function list(a,l){return a&&a.length?a.join(", ").replace(/, ([^,]*)$/," y $1"):`[${l}]`}
+function j(...a){return a.filter(Boolean).join(" ")}
+const words=t=>(t.trim().match(/\S+/g)||[]).length;
+const fmt=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+
+/* estado */
+let st={v:{},over:{},step:0,trans:true};
+try{const r=localStorage.getItem("pitch-v1");if(r)st=Object.assign(st,JSON.parse(r))}catch(_){}
+const save=()=>{try{localStorage.setItem("pitch-v1",JSON.stringify(st))}catch(_){}};
+const ids=s=>s.fields.filter(f=>f.id&&!f.opts||f.type==="select"||f.type==="chips").filter(f=>f.id&&f.type!=="select"&&f.id!=="universeNote"&&f.id!=="opening"&&s.k!=="base"||(s.k==="base"&&f.id==="team"));
+const filled=(s,f)=>{const x=st.v[f.id];return Array.isArray(x)?x.length>0:!!(x&&x.trim())};
+const req=s=>s.fields.filter(f=>f.id&&!["m_why","p_evidence","i_goals","opening","universeNote","universe","f_ask_opt"].includes(f.id));
+function prog(s){const r=req(s);const n=r.filter(f=>filled(s,f)).length;return [n,r.length]}
+
+const $=id=>document.getElementById(id);
+function rail(){
+  const items=S.map((s,i)=>{const [n,t]=prog(s);const c=n===t?"done":n?"part":"";return `<button class="tab ${c}" data-go="${i}" ${st.step===i?'aria-current="true"':""}><span class="dot">${n===t?"✓":(i||"•")}</span>${s.t.replace(/^\d\.\s/,"")}<small>${n}/${t}</small></button>`}).join("");
+  const fin=`<button class="tab" data-go="${S.length}" ${st.step===S.length?'aria-current="true"':""}><span class="dot">★</span>Pitch consolidado</button>`;
+  $("rail").innerHTML=items+fin;
+}
+function field(f){
+  if(f.warn)return `<div class="warn">${f.warn}</div>`;
+  if(f.h2)return `<div class="sec">${f.h2}</div>`;
+  const v=st.v[f.id];const h=f.h?`<p class="h">${f.h}</p>`:"";
+  let c="";
+  if(f.type==="area")c=`<textarea data-f="${f.id}" rows="2">${esc(v||"")}</textarea>`;
+  else if(f.type==="line")c=`<input type="text" data-f="${f.id}" value="${esc(v||"")}">`;
+  else if(f.type==="select")c=`<select data-f="${f.id}"><option value="">Elige un universo…</option>${f.opts.map(o=>`<option ${v===o?"selected":""}>${o}</option>`).join("")}</select>`;
+  else if(f.type==="chips"){const a=v||[];c=`<div class="chips">${f.opts.map(o=>`<label class="chip"><input type="checkbox" data-chip="${f.id}" value="${o}" ${a.includes(o)?"checked":""}>${o}</label>`).join("")}</div>${f.max?`<p class="h" id="cap-${f.id}">${a.length} seleccionados${a.length>f.max?" · recomendamos máximo "+f.max:""}</p>`:""}`}
+  return `<div class="f"><label>${f.l}</label>${h}${c}</div>`;
+}
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+
+function render(){
+  rail();
+  if(st.step>=S.length)return renderPitch();
+  const s=S[st.step];
+  $("main").innerHTML=`<div class="card"><h2>${s.t}</h2><p class="q">${s.q}</p>${s.sec?`<span class="time">Tiempo sugerido: ${fmt(s.sec)}</span>`:""}<p class="formula">${s.f}</p>${s.fields.map(field).join("")}
+  <div class="nav"><button class="b" data-go="${st.step-1}" ${st.step?"":"disabled"}>Anterior</button><button class="b p" data-go="${st.step+1}">${st.step===S.length-1?"Ver pitch consolidado":"Siguiente"}</button></div></div>`;
+  window.scrollTo({top:0});
+}
+function sections(){
+  return S.slice(1).map((s,i)=>{
+    const auto=s.gen(st.v);const txt=st.over[s.k]!==undefined?st.over[s.k]:auto;
+    return {s,i,auto,txt,tr:i>0?TRANS[i]:""};
+  });
+}
+function full(secs){
+  return `${st.v.team?"PITCH — "+st.v.team+"\n"+(st.v.universe?"Universo: "+st.v.universe+"\n":""):""}\n`+secs.map(x=>(st.trans&&x.tr?x.tr+"\n\n":"")+x.txt).join("\n\n");
+}
+function renderPitch(){
+  const secs=sections();
+  $("main").innerHTML=`<div class="card"><h2>${esc(st.v.team||"Tu pitch")}</h2><p class="q">Guion consolidado${st.v.universe?" · universo: "+esc(st.v.universe.toLowerCase()):""}. Edita cualquier párrafo; tus cambios se conservan.</p>
+  <div class="tools"><label class="tgl"><input type="checkbox" id="tg" ${st.trans?"checked":""}> Incluir transiciones</label><span class="grow"></span><button class="b p" id="copy">Copiar guion</button></div><div class="msg" id="msg" role="status"></div>
+  <div id="meter"></div>
+  ${secs.map(x=>`<section class="ps"><header><h3>${x.s.t}</h3><span class="t" data-t="${x.s.k}"></span></header>${st.trans&&x.tr?`<p class="tr">${x.tr}</p>`:""}<textarea data-o="${x.s.k}" aria-label="${x.s.t}">${esc(x.txt)}</textarea>${st.over[x.s.k]!==undefined?`<button class="rs" data-reset="${x.s.k}">Restaurar texto automático</button>`:""}</section>`).join("")}
+  <div class="nav"><button class="b" data-go="${S.length-1}">Volver al formulario</button></div></div>`;
+  autosize();stats();
+}
+function autosize(){document.querySelectorAll("textarea[data-o]").forEach(t=>{t.style.height="auto";t.style.height=t.scrollHeight+4+"px"})}
+function stats(){
+  const secs=sections();let tot=0;
+  secs.forEach(x=>{const ta=document.querySelector(`[data-o="${x.s.k}"]`);const w=words((ta?ta.value:x.txt)+(st.trans?" "+x.tr:""));const sec=w/130*60;tot+=sec;
+   const el=document.querySelector(`[data-t="${x.s.k}"]`);if(el){const over=sec>x.s.sec*1.15;el.className="t"+(over?" over":"");el.textContent=`≈ ${fmt(sec)} de ${fmt(x.s.sec)} sugeridos · ${w} palabras`}});
+  const pct=Math.min(100,tot/900*100);
+  $("meter").innerHTML=`<div class="meter ${tot>900?"over":""}"><i style="width:${pct}%"></i></div><p class="h" style="margin:0 0 6px">Duración estimada al hablar: <b>${fmt(tot)}</b> de 15:00 (ritmo de 130 palabras por minuto, sin contar la demostración en vivo).</p>`;
+}
+
+/* eventos */
+document.addEventListener("click",ev=>{
+  const g=ev.target.closest("[data-go]");
+  if(g&&!g.disabled){st.step=+g.dataset.go;save();render();return}
+  const r=ev.target.closest("[data-reset]");
+  if(r){delete st.over[r.dataset.reset];save();renderPitch();return}
+  if(ev.target.id==="copy"){
+    const t=full(sections());const m=$("msg");
+    const ok=()=>m.textContent="Guion copiado al portapapeles.";
+    const fb=()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(_){m.textContent="No se pudo copiar: selecciona el texto manualmente."}a.remove()};
+    try{navigator.clipboard.writeText(t).then(ok,fb)}catch(_){fb()}
+  }
+});
+document.addEventListener("input",ev=>{
+  const t=ev.target;
+  if(t.dataset.f){st.v[t.dataset.f]=t.value;save();rail()}
+  else if(t.dataset.o){st.over[t.dataset.o]=t.value;save();autosize();stats()}
+});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.dataset.chip){const id=t.dataset.chip;const a=st.v[id]||[];st.v[id]=t.checked?[...a,t.value]:a.filter(x=>x!==t.value);save();rail();
+    const f=S.flatMap(s=>s.fields).find(f=>f.id===id);const c=$("cap-"+id);if(c&&f.max)c.textContent=`${st.v[id].length} seleccionados${st.v[id].length>f.max?" · recomendamos máximo "+f.max:""}`}
+  else if(t.dataset.f){st.v[t.dataset.f]=t.value;save();rail()}
+  else if(t.id==="tg"){st.trans=t.checked;save();renderPitch()}
+});
+render();
+</script>
+</body>
+</html>
